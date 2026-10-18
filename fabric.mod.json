@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "donutauction",
+  "version": "${version}",
+  "name": "Donut Auction",
+  "description": "Run quick auctions in chat. Bids are /pay amounts.",
+  "environment": "client",
+  "entrypoints": { "client": ["com.donutauction.DonutAuctionClient"] },
+  "depends": { "fabricloader": ">=0.18.0", "minecraft": "~26.2", "fabric-api": "*" }
+}
