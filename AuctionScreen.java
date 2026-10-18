@@ -1,12 +1,14 @@
 package com.donutauction;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 import java.util.ArrayList;
@@ -18,6 +20,7 @@ public class AuctionScreen extends Screen {
 	private final List<Item> all = new ArrayList<>();
 	private List<Item> filtered = new ArrayList<>();
 	private final List<Button> rowButtons = new ArrayList<>();
+	private final List<Item> rowItems = new ArrayList<>();
 	private EditBox search;
 	private Button selectedLabel, timeLabel;
 	private int page = 0;
@@ -90,6 +93,7 @@ public class AuctionScreen extends Screen {
 	private void refreshRows() {
 		for (Button b : rowButtons) removeWidget(b);
 		rowButtons.clear();
+		rowItems.clear();
 		int left = width / 2 - 210;
 		int start = page * ROWS;
 		for (int r = 0; r < ROWS && start + r < filtered.size(); r++) {
@@ -99,6 +103,32 @@ public class AuctionScreen extends Screen {
 				selectedLabel.setMessage(Component.literal("Item: " + nameOf(item)));
 			}).bounds(left, 48 + r * 22, 200, 20).build();
 			rowButtons.add(addRenderableWidget(b));
+			rowItems.add(item);
+		}
+	}
+
+	/**
+	 * Draws item pictures: a small icon on each list row and a big preview of the selected item.
+	 * NOTE: 26.x renamed GUI drawing ("extract" API). If your build says these names don't exist,
+	 * use render(GuiGraphics g, ...) and g.renderItem(stack, x, y) instead.
+	 */
+	@Override
+	public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float partialTick) {
+		super.extractRenderState(g, mouseX, mouseY, partialTick);
+
+		for (int i = 0; i < rowButtons.size(); i++) {
+			Button b = rowButtons.get(i);
+			g.item(new ItemStack(rowItems.get(i)), b.getX() + 2, b.getY() + 2);
+		}
+
+		if (selected != null) {
+			int px = width / 2 + 10 + 100 - 32;
+			int py = 200;
+			g.pose().pushMatrix();
+			g.pose().translate(px, py);
+			g.pose().scale(4f, 4f);
+			g.item(new ItemStack(selected), 0, 0);
+			g.pose().popMatrix();
 		}
 	}
 }
